@@ -18,7 +18,6 @@ app.configure(function() {
 	
 	app.post('/alarm', function(req, res) {
 		var notifications = req.body['ns1.notification-list'];
-		console.log('POST');
 		// removed & modified aren't handled because they don't give enough info
 		if (notifications['ns1.added-instance']) {
 			var addeds = notifications['ns1.added-instance'];
@@ -29,7 +28,7 @@ app.configure(function() {
 			});
 		}
 		
-		if (notifications['ns1.heartbeat']) { oc.emit('heartbeat'); }
+		if (notifications['ns1.heartbeat'] || notifications['ns2.heartbeat']) { oc.emit('heartbeat'); }
 		
 		res.send({}); // return a response so that the oneclick api will send the next
 	});
@@ -41,6 +40,8 @@ app.configure(function() {
 oc.on('alarm-added', function(alarm) {
 	console.log('==============ADDED');
 	alarm.set('Status', 'HONK!');
+	alarm.set('ICCECCKT', 'Fake Ckt');
+	alarm.set('CUSTOMER', 'FAKECUST');
 	oc.update(alarm);
 });
 
@@ -48,6 +49,9 @@ oc.on('subscribed', function(id) {
 	console.log('SUBSCRIBED: '+id);
 });
 
+oc.on('heartbeat', function() {
+	console.log('HEARTBEAT');
+});
 
 // start the listener
 app.listen(localPort);
